@@ -13,7 +13,7 @@ b { color: #a34137; font-weight: normal; }
 .line-field input { flex: 1; min-width: 150px; font: inherit; padding: 5px 6px; color: inherit; border: 0; border-bottom: 1px solid #687461; border-radius: 0; background: transparent; }
 .choice { display: flex; align-items: flex-start; gap: 10px; line-height: 1.6; padding: 7px 0; cursor: pointer; }
 .choice input { flex-shrink: 0; width: 18px; height: 18px; margin: 4px 0 0; accent-color: #526c46; }
-.date-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.date-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: baseline; gap: 10px; margin-bottom: 8px; }
 .date-row .choice { flex-shrink: 0; }
 .name-line { flex: 1; min-height: 30px; min-width: 80px; border-bottom: 1px solid #687461; padding: 4px 6px; line-height: 1.5; overflow-wrap: anywhere; }
 .pending-name { color: #60735c; font-style: italic; }
@@ -26,5 +26,5 @@ button:disabled { opacity: .6; cursor: wait; }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #a8bf94; outline-offset: 4px; }
 .required-note, #load-status { color: #64705f; font-size: 13px; line-height: 1.5; }
 #status { line-height: 1.5; }
-@media (max-width: 540px) { body { padding: 16px 10px; } main { padding: 26px 20px; } .date-row { flex-wrap: wrap; gap: 6px; } .name-line { min-width: 100px; } }
+@media (max-width: 540px) { body { padding: 16px 10px; } main { padding: 26px 20px; } .date-row { gap: 6px; } .name-line { min-width: 0; } }
 @media print { body { padding: 0; background: white; } main { border: 0; box-shadow: none; padding: 20px; } .actions, .required-note, #load-status, #status { display: none; } .date-row, fieldset { break-inside: avoid; } }
