@@ -53,6 +53,6 @@ test('DayFlow relay fixes recipient and subject and reuses existing secrets', as
   const email = JSON.parse(sent.body);
   assert.deepEqual(email.to,['esemmoc@gmail.com']);
   assert.equal(email.subject,'Anne');
-  assert.equal(email.from,'DayFlow <sender@example.com>');
+  assert.equal(email.from,'Meal Train <sender@example.com>');
   assert.equal(sent.headers['Idempotency-Key'],'anne-katz-signup/'+id);
 });

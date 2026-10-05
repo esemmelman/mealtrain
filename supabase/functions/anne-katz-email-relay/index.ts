@@ -9,8 +9,10 @@ Deno.serve(async request => {
     return respond({ error: 'Invalid notification.' }, 400);
   }
   const key = Deno.env.get('RESEND_API_KEY');
-  const from = Deno.env.get('REMINDER_EMAIL_FROM');
-  if (!key || !from) return respond({ error: 'DayFlow email sending is not configured.' }, 503);
+  const configuredFrom = Deno.env.get('REMINDER_EMAIL_FROM');
+  if (!key || !configuredFrom) return respond({ error: 'DayFlow email sending is not configured.' }, 503);
+  const senderAddress = (configuredFrom.match(/<([^<>]+)>/)?.[1] || configuredFrom).trim();
+  const from = 'Meal Train <' + senderAddress + '>';
   // Fixed recipient and subject; this relay cannot send to arbitrary addresses.
   try {
     const response = await fetch('https://api.resend.com/emails', {
