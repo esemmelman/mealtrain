@@ -16,6 +16,7 @@ function gmailMock(savedRow = row, failedRole = '', claimed = true) {
   const sent = [];
   const updates = [];
   return { sent, updates, fetcher: async (url, options) => {
+    if (url.includes('anne_katz_email_settings')) return Response.json([]);
     if (url.includes('&select=*')) return Response.json([savedRow]);
     if (url.includes('oauth2.googleapis.com')) return Response.json({ access_token: 'test-access' });
     if (url.includes('&or=')) return Response.json(claimed ? [savedRow] : []);
@@ -81,6 +82,7 @@ test('Gmail overlapping request does not send while lease is held', async () => 
 test('Gmail authorization failure does not send or mark the signup', async () => {
   const calls = [];
   const response = await handle(request(), gmailEnv, async url => {
+    if (url.includes('anne_katz_email_settings')) return Response.json([]);
     calls.push(url);
     return url.includes('&select=*') ? Response.json([row]) : Response.json({ error: 'invalid_grant' }, { status: 400 });
   });
@@ -96,6 +98,7 @@ test('uses document confirmation wording and only selected dates', () => {
 test('reads saved answers, relays them, and records success', async () => {
   const calls = [];
   const response = await handle(request(), env, async (url,options) => {
+    if (url.includes('anne_katz_email_settings')) return Response.json([]);
     calls.push({url,options});
     if (url.includes('&select=*')) return Response.json([row]);
     if (url.includes('email-relay')) return Response.json({ids:['organizer-email-id','participant-email-id']});
@@ -115,7 +118,7 @@ test('does not resend a notification already marked sent', async () => {
 });
 test('email failure leaves the signup unchanged and reports failure', async () => {
   let calls = 0;
-  const response = await handle(request(),env,async () => { calls++; return calls === 1 ? Response.json([row]) : Response.json({error:'provider failure'},{status:502}); });
+  const response = await handle(request(),env,async url => { if (url.includes('anne_katz_email_settings')) return Response.json([]); calls++; return calls === 1 ? Response.json([row]) : Response.json({error:'provider failure'},{status:502}); });
   assert.equal(response.status,502);
   assert.equal(calls,2);
 });

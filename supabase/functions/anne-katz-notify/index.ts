@@ -1,5 +1,6 @@
 import { EMAIL_TEMPLATE } from './email-template.ts';
 import { gmailToken, sendGmail } from './gmail.ts';
+import { sendAppsScript } from './apps-script.ts';
 const BROWSER_KEY = 'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i';
 const TABLE = 'anne_katz_mealtrain_signups';
 const headers = {
@@ -51,8 +52,12 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
     if (!rows.length) return reply({ error: 'Signup not found.' }, 404);
     const row = rows[0];
     if (row.email_notified_at) return reply({ emailed: true });
-    if (env('ANNE_EMAIL_PROVIDER') === 'gmail') {
-      const token = await gmailToken(env, fetcher);
+    const settingsResponse = await fetcher(url + '/rest/v1/anne_katz_email_settings?id=eq.1&select=script_url,token', { headers: databaseHeaders });
+    if (!settingsResponse.ok) throw new Error('Cannot read email settings.');
+    const settings = (await settingsResponse.json())[0];
+    const useScript = Boolean(settings?.script_url);
+    if (useScript || env('ANNE_EMAIL_PROVIDER') === 'gmail') {
+      const token = useScript ? null : await gmailToken(env, fetcher);
       const startedAt = new Date().toISOString();
       const expiredAt = new Date(Date.now() - 120000).toISOString();
       const claim = await fetcher(recordUrl + '&or=(email_send_started_at.is.null,email_send_started_at.lt.' + expiredAt + ')', {
@@ -69,14 +74,16 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
           const column = 'gmail_' + role + '_id';
           if (current[column] || current.email_notified_at) continue;
           try {
-            const id = await sendGmail(token, recipient, role === 'organizer' ? current.email : 'esemmoc@gmail.com', emailText(current), current.id, role, fetcher);
+            const id = useScript
+              ? await sendAppsScript(settings, current, role, emailText(current), fetcher)
+              : await sendGmail(token, recipient, role === 'organizer' ? current.email : 'esemmoc@gmail.com', emailText(current), current.id, role, fetcher);
             const recorded = await fetcher(recordUrl, {
               method: 'PATCH', headers: databaseHeaders, body: JSON.stringify({ [column]: id })
             });
-            if (!recorded.ok) throw new Error('Cannot record Gmail acceptance.');
+            if (!recorded.ok) throw new Error('Cannot record email acceptance.');
           } catch {
             failures.push(role);
-            console.error('Anne Gmail notification failed:', current.id, role);
+            console.error('Anne notification failed:', current.id, useScript ? 'apps-script' : 'gmail', role);
           }
         }
         if (failures.length) return reply({ error: 'Could not confirm the ' + failures.join(' and ') + ' email.' }, 502);

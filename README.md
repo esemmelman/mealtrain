@@ -13,3 +13,5 @@ After saving a signup, the browser calls the bnaimitzvah project's anne-katz-not
 Deployment projects: anne-katz-notify belongs to fgomaujsdblpzxhnnqrg (bnaimitzvah); anne-katz-email-relay belongs to ynfjfanvdvpyycoeweca (DayFlow). The function source directories are checked in here for both deployments.
 
 Gmail sending is available in `anne-katz-notify` after the one-time authorization in [GMAIL_SETUP.md](GMAIL_SETUP.md). Set `ANNE_EMAIL_PROVIDER=gmail` only after saving the Gmail credentials. Until then, the existing Resend relay remains selected.
+
+The simpler Gmail connection uses [Apps Script setup](APPS_SCRIPT_SETUP.md). Once its deployment URL is configured in the server-only `anne_katz_email_settings` table, it takes precedence over the other providers. Its token is never included in the public form or GitHub.

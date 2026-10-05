@@ -18,3 +18,13 @@ grant select (full_name, signup_dates) on public.anne_katz_mealtrain_signups to 
 grant insert (id, full_name, meal_type, signup_dates, email, phone, comment) on public.anne_katz_mealtrain_signups to anon, authenticated;
 create policy anne_katz_mealtrain_read_names on public.anne_katz_mealtrain_signups for select to anon, authenticated using (true);
 create policy anne_katz_mealtrain_submit on public.anne_katz_mealtrain_signups for insert to anon, authenticated with check (true);
+
+-- Server-only Apps Script connection. No browser role may access this table.
+create table public.anne_katz_email_settings (
+ id integer primary key check (id = 1),
+ script_url text not null default '',
+ token text not null
+);
+alter table public.anne_katz_email_settings enable row level security;
+revoke all on public.anne_katz_email_settings from public, anon, authenticated;
+grant select on public.anne_katz_email_settings to service_role;
