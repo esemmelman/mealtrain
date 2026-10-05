@@ -7,7 +7,10 @@ create table public.anne_katz_mealtrain_signups (
  phone text not null check (length(phone) between 10 and 40),
  comment text not null default '' check (length(comment) <= 5000),
  created_at timestamptz not null default now(),
- email_notified_at timestamptz
+ email_notified_at timestamptz,
+ gmail_organizer_id text,
+ gmail_participant_id text,
+ email_send_started_at timestamptz
 );
 alter table public.anne_katz_mealtrain_signups enable row level security;
 revoke all on public.anne_katz_mealtrain_signups from anon, authenticated;

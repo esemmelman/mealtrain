@@ -1,4 +1,5 @@
 import { EMAIL_TEMPLATE } from './email-template.ts';
+import { gmailToken, sendGmail } from './gmail.ts';
 const BROWSER_KEY = 'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i';
 const TABLE = 'anne_katz_mealtrain_signups';
 const headers = {
@@ -50,6 +51,47 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
     if (!rows.length) return reply({ error: 'Signup not found.' }, 404);
     const row = rows[0];
     if (row.email_notified_at) return reply({ emailed: true });
+    if (env('ANNE_EMAIL_PROVIDER') === 'gmail') {
+      const token = await gmailToken(env, fetcher);
+      const startedAt = new Date().toISOString();
+      const expiredAt = new Date(Date.now() - 120000).toISOString();
+      const claim = await fetcher(recordUrl + '&or=(email_send_started_at.is.null,email_send_started_at.lt.' + expiredAt + ')', {
+        method: 'PATCH', headers: { ...databaseHeaders, Prefer: 'return=representation' },
+        body: JSON.stringify({ email_send_started_at: startedAt })
+      });
+      if (!claim.ok) throw new Error('Cannot claim notification.');
+      const claimedRows = await claim.json();
+      if (!claimedRows.length) return reply({ error: 'Notification is already being sent. Please try again shortly.' }, 409);
+      const current = claimedRows[0];
+      const failures = [];
+      try {
+        for (const [role, recipient] of [['organizer', 'esemmoc@gmail.com'], ['participant', current.email]]) {
+          const column = 'gmail_' + role + '_id';
+          if (current[column] || current.email_notified_at) continue;
+          try {
+            const id = await sendGmail(token, recipient, role === 'organizer' ? current.email : 'esemmoc@gmail.com', emailText(current), current.id, role, fetcher);
+            const recorded = await fetcher(recordUrl, {
+              method: 'PATCH', headers: databaseHeaders, body: JSON.stringify({ [column]: id })
+            });
+            if (!recorded.ok) throw new Error('Cannot record Gmail acceptance.');
+          } catch {
+            failures.push(role);
+            console.error('Anne Gmail notification failed:', current.id, role);
+          }
+        }
+        if (failures.length) return reply({ error: 'Could not confirm the ' + failures.join(' and ') + ' email.' }, 502);
+        const marked = await fetcher(recordUrl, {
+          method: 'PATCH', headers: databaseHeaders,
+          body: JSON.stringify({ email_notified_at: new Date().toISOString() })
+        });
+        if (!marked.ok) throw new Error('Cannot record notification success.');
+        return reply({ emailed: true });
+      } finally {
+        await fetcher(recordUrl + '&email_send_started_at=eq.' + startedAt, {
+          method: 'PATCH', headers: databaseHeaders, body: JSON.stringify({ email_send_started_at: null })
+        }).catch(() => {});
+      }
+    }
     // Read saved answers on the server; the browser cannot change the recipient or subject.
     const response = await fetcher('https://ynfjfanvdvpyycoeweca.supabase.co/functions/v1/anne-katz-email-relay', {
       method: 'POST',
