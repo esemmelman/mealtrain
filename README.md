@@ -6,7 +6,7 @@ Submit saves name, meal type, selected dates, email, phone, and comment. Cancel 
 
 The dedicated public.anne_katz_mealtrain_signups table is independent of existing tables. schema.sql records the deployed definition; do not run it again against the same database. Browser access allows inserts and reads of names/dates only. Contact details and comments are not exposed through browser reads. The app.js key is intentionally publishable.
 
-Dates are stored as October 10, 14, 18, and 22, 2026. Labels preserve the requested wording, though October 18 and 22 fall on Sunday and Thursday in 2026.
+Signup dates are October 10, 13, 17, and 21, 2026. October 7 is reserved for CCC (committee member handling) and remains gray and disabled.
 
 After saving a signup, the browser calls the bnaimitzvah project's anne-katz-notify Edge Function. It reads the saved answers and sends two separate emails through the DayFlow project's dedicated anne-katz-email-relay function, reusing DayFlow's existing RESEND_API_KEY and REMINDER_EMAIL_FROM secrets. One goes to esemmoc@gmail.com and the other to the signup's email address. Both use sender name Meal Train and subject Anne. The body uses the supplied Google Doc's confirmation wording, with <signup-dates> replaced by the selected date labels. The template is a snapshot in email-template.ts, not a live Google Doc fetch. No email credentials are stored in GitHub or the browser. Email failure leaves the signup saved and displays a notification warning. email_notified_at is set only after both emails are accepted; separate Resend idempotency keys prevent duplicate notifications on retries. Email provider acceptance does not guarantee inbox delivery.
 

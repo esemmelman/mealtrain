@@ -15,6 +15,7 @@ b { color: #a34137; font-weight: normal; }
 .choice input { flex-shrink: 0; width: 18px; height: 18px; margin: 4px 0 0; accent-color: #526c46; }
 .date-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 10px; margin-bottom: 8px; }
 .date-row .choice { flex-shrink: 0; }
+.date-row.filled { color: #777; }
 .date-row.filled .choice { color: #777; cursor: not-allowed; }
 .date-row.filled .name-line { color: #777; border-bottom-color: #aaa; }
 .date-row.filled input { opacity: .55; cursor: not-allowed; }

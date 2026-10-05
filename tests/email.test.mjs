@@ -7,7 +7,7 @@ import { gmailMessage } from '../supabase/functions/anne-katz-notify/gmail.ts';
 
 const id = '66961555-e184-4f1f-b0f7-27c0d77593b2';
 const key = 'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i';
-const row = { id, full_name: 'Test Person', meal_type: 'homecooked', signup_dates: ['2026-10-10','2026-10-22'], email: 'test@example.com', phone: '555-555-0100', comment: 'Test comment' };
+const row = { id, full_name: 'Test Person', meal_type: 'homecooked', signup_dates: ['2026-10-10','2026-10-21'], email: 'test@example.com', phone: '555-555-0100', comment: 'Test comment' };
 const env = name => ({ SUPABASE_URL: 'https://example.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'server-test-key' })[name];
 const request = () => new Request('https://example.com', {method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({signup_id:id})});
 const gmailEnv = name => ({ ANNE_EMAIL_PROVIDER: 'gmail', GMAIL_CLIENT_ID: 'test-client', GMAIL_CLIENT_SECRET: 'test-secret', GMAIL_REFRESH_TOKEN: 'test-refresh' })[name] || env(name);
@@ -92,8 +92,8 @@ test('Gmail authorization failure does not send or mark the signup', async () =>
 
 test('uses document confirmation wording and only selected dates', () => {
   const text = emailText(row);
-  for (const answer of ['Thank YOU for being part','Sat. Oct. 10th, Wed. Oct. 22nd','approx. 5 p.m.','CONTACT INFORMATION','TYPES OF MEALS','sharethecaring@templebethdavid.org']) assert.ok(text.includes(answer));
-  for (const excluded of ['<signup-dates>', 'Wed. Oct. 14th', 'Sat. Oct. 18th', 'My Name:', 'Test comment']) assert.ok(!text.includes(excluded));
+  for (const answer of ['Thank YOU for being part','Sat. Oct. 10th, Wed. Oct. 21st','approx. 5 p.m.','CONTACT INFORMATION','TYPES OF MEALS','sharethecaring@templebethdavid.org']) assert.ok(text.includes(answer));
+  for (const excluded of ['<signup-dates>', 'Tues. Oct. 13th', 'Sat. Oct. 17th', 'My Name:', 'Test comment']) assert.ok(!text.includes(excluded));
 });
 test('reads saved answers, relays them, and records success', async () => {
   const calls = [];

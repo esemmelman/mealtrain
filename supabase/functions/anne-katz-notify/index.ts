@@ -24,9 +24,9 @@ function serverKey(env) {
 export function emailText(row) {
   const labels = {
     '2026-10-10': 'Sat. Oct. 10th',
-    '2026-10-14': 'Wed. Oct. 14th',
-    '2026-10-18': 'Sat. Oct. 18th',
-    '2026-10-22': 'Wed. Oct. 22nd'
+    '2026-10-13': 'Tues. Oct. 13th',
+    '2026-10-17': 'Sat. Oct. 17th',
+    '2026-10-21': 'Wed. Oct. 21st'
   };
   return EMAIL_TEMPLATE.replace('<signup-dates>', row.signup_dates.map(date => labels[date] || date).join(', '));
 }
