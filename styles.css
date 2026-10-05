@@ -16,6 +16,7 @@ b { color: #a34137; font-weight: normal; }
 .date-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 10px; margin-bottom: 8px; }
 .date-row .choice { flex-shrink: 0; }
 .date-row.filled .choice { color: #777; cursor: not-allowed; }
+.date-row.filled .name-line { color: #777; border-bottom-color: #aaa; }
 .date-row.filled input { opacity: .55; cursor: not-allowed; }
 .name-line { flex: 1; min-height: 21px; min-width: 80px; border-bottom: 1px solid #687461; padding: 0 6px 1px; line-height: 1.15; overflow-wrap: anywhere; }
 .pending-name { color: #60735c; font-style: italic; }
