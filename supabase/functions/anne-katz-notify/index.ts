@@ -1,3 +1,4 @@
+import { EMAIL_TEMPLATE } from './email-template.ts';
 const BROWSER_KEY = 'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i';
 const TABLE = 'anne_katz_mealtrain_signups';
 const headers = {
@@ -25,20 +26,7 @@ export function emailText(row) {
     '2026-10-18': 'Sat. Oct. 18th',
     '2026-10-22': 'Wed. Oct. 22nd'
   };
-  return [
-    'MEAL TRAIN for ANNE KATZ', 'SIGN UP FORM', '',
-    'My Name: ' + row.full_name, '',
-    'Yes, I would like to:',
-    row.meal_type === 'homecooked'
-      ? 'Prepare a homecooked meal for Anne and deliver it to her.'
-      : 'Order a meal for Anne from a restaurant and schedule its delivery by Grubhub, Uber Eats, etc.',
-    '',
-    'I would like to sign up for the following date:',
-    ...row.signup_dates.map(date => labels[date] || date), '',
-    'My Email Address: ' + row.email,
-    'My Phone Number (please incl. area code): ' + row.phone, '',
-    'Comment:', row.comment || '(No comment)'
-  ].join('\n');
+  return EMAIL_TEMPLATE.replace('<signup-dates>', row.signup_dates.map(date => labels[date] || date).join(', '));
 }
 export async function handle(request, env = name => Deno.env.get(name), fetcher = fetch) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers });
@@ -70,7 +58,7 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
     });
     if (!response.ok) return reply({ error: 'The email provider did not accept the notification.' }, 502);
     const sent = await response.json();
-    if (!sent.id) return reply({ error: 'The email provider did not confirm acceptance.' }, 502);
+    if (!Array.isArray(sent.ids) || sent.ids.length !== 2 || sent.ids.some(id => !id)) return reply({ error: 'The email provider did not confirm both emails.' }, 502);
     const marked = await fetcher(recordUrl, {
       method: 'PATCH', headers: { ...databaseHeaders, Prefer: 'return=minimal' },
       body: JSON.stringify({ email_notified_at: new Date().toISOString() })

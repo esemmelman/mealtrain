@@ -100,8 +100,8 @@ form.addEventListener('submit', async event => {
   if (success) {
     form.reset();
     status.textContent = emailSent
-      ? 'Thank you! Your meal signup for Anne has been saved and the answers have been emailed to the organizer.'
-      : 'Your meal signup has been saved, but the email notification could not be sent. Please let the organizer know; you do not need to sign up again.';
+      ? 'Thank you! Your meal signup for Anne has been saved. Confirmation emails have been sent to you and the organizer.'
+      : 'Your meal signup has been saved, but we could not confirm both emails were sent. Please let the organizer know; you do not need to sign up again.';
     await refreshNames();
   }
 });
