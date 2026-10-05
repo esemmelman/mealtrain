@@ -20,7 +20,7 @@ Deno.serve(async request => {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', 'Idempotency-Key': 'anne-katz-confirmation/' + row.id + '/' + role },
-      body: JSON.stringify({ from, to: [recipient], subject: 'Anne', text: row.text, reply_to: role === 'organizer' ? row.reply_to : 'esemmoc@gmail.com' })
+      body: JSON.stringify({ from, to: [recipient], subject: 'Anne', text: row.text, html: emailHtml(row.text), reply_to: role === 'organizer' ? row.reply_to : 'esemmoc@gmail.com' })
     });
     if (!response.ok) {
       console.error('Anne email provider response:', response.status);
@@ -33,3 +33,8 @@ Deno.serve(async request => {
     return respond({ ids });
   } catch { return respond({ error: 'Email provider is unavailable.' }, 502); }
 });
+
+function emailHtml(text) {
+  const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return `<div style="font-family:'Comic Sans MS','Comic Sans',cursive;font-size:14pt;color:#222;line-height:1.4">${escaped.replace(/\r?\n/g, '<br>')}</div>`;
+}

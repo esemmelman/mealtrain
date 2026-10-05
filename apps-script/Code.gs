@@ -38,7 +38,7 @@ function doPost(event) {
     MailApp.sendEmail({
       to: input.role === 'organizer' ? 'esemmoc@gmail.com' : input.email,
       replyTo: input.role === 'organizer' ? input.email : 'esemmoc@gmail.com',
-      name: 'Meal Train', subject: 'Anne', body: input.text
+      name: 'Meal Train', subject: 'Anne', body: input.text, htmlBody: emailHtml(input.text)
     });
     properties.setProperty(receipt, new Date().toISOString());
     return jsonResponse({ ok: true, id: receipt });
@@ -46,4 +46,9 @@ function doPost(event) {
     console.error('Meal Train send failed: ' + input.role);
     return jsonResponse({ ok: false, error: 'send_failed' });
   } finally { lock.releaseLock(); }
+}
+
+function emailHtml(text) {
+  const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return `<div style="font-family:'Comic Sans MS','Comic Sans',cursive;font-size:14pt;color:#222;line-height:1.4">${escaped.replace(/\r?\n/g, '<br>')}</div>`;
 }

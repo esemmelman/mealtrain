@@ -38,6 +38,9 @@ test('script sends to fixed organizer and saved participant with correct content
     assert.equal(mail.subject, 'Anne');
     assert.equal(mail.name, 'Meal Train');
     assert.equal(mail.body, notification.text);
+    assert.ok(mail.htmlBody.includes('Comic Sans MS'));
+    assert.ok(mail.htmlBody.includes('font-size:14pt'));
+    assert.ok(mail.htmlBody.includes(notification.text));
   }
 });
 test('script repeated receipt does not resend', () => {

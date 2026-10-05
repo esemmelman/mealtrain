@@ -1,3 +1,4 @@
+import { emailHtml } from './email-template.ts';
 const SENDER = 'esemmoc@gmail.com';
 
 function base64(text) {
@@ -18,10 +19,19 @@ export function gmailMessage(recipient, replyTo, text, signupId, role) {
     'Subject: Anne',
     'Message-ID: <anne-' + signupId + '-' + role + '@gmail.com>',
     'MIME-Version: 1.0',
+    'Content-Type: multipart/alternative; boundary="anne-confirmation"',
+    '',
+    '--anne-confirmation',
     'Content-Type: text/plain; charset=UTF-8',
     'Content-Transfer-Encoding: base64',
     '',
-    base64(text).match(/.{1,76}/g)?.join('\r\n') || ''
+    base64(text).match(/.{1,76}/g)?.join('\r\n') || '',
+    '--anne-confirmation',
+    'Content-Type: text/html; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    base64(emailHtml(text)).match(/.{1,76}/g)?.join('\r\n') || '',
+    '--anne-confirmation--'
   ].join('\r\n');
   return base64(mime).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }

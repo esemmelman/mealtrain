@@ -32,3 +32,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 #status { line-height: 1.5; }
 @media (max-width: 540px) { body { padding: 16px 10px; } main { padding: 26px 20px; } .date-row { gap: 6px; } .name-line { min-width: 0; } }
 @media print { body { padding: 0; background: white; } main { border: 0; box-shadow: none; padding: 20px; } .actions, .required-note, #load-status, #status { display: none; } .date-row, fieldset { break-inside: avoid; } }
+
+#close-page { display: block; margin: 24px auto 0; }
+#close-page[hidden] { display: none; }
+.thank-you { text-align: center; }
+.thank-you h1 { margin: 0; }

@@ -111,11 +111,7 @@ form.addEventListener('submit', async event => {
   }
 });
 closeButton.addEventListener('click', () => {
-  window.close();
-  setTimeout(() => {
-    status.textContent += ' You can now close this browser tab manually.';
-    closeButton.hidden = true;
-  }, 300);
+  window.location.assign('thank-you.html');
 });
 validate();
 refreshNames();

@@ -15,3 +15,5 @@ Deployment projects: anne-katz-notify belongs to fgomaujsdblpzxhnnqrg (bnaimitzv
 Gmail sending is available in `anne-katz-notify` after the one-time authorization in [GMAIL_SETUP.md](GMAIL_SETUP.md). Set `ANNE_EMAIL_PROVIDER=gmail` only after saving the Gmail credentials. Until then, the existing Resend relay remains selected.
 
 The simpler Gmail connection uses [Apps Script setup](APPS_SCRIPT_SETUP.md). Once its deployment URL is configured in the server-only `anne_katz_email_settings` table, it takes precedence over the other providers. Its token is never included in the public form or GitHub.
+
+Confirmation HTML uses Comic Sans MS at 14 pt, matching the Google Doc, with a plain-text fallback. Apps Script requires replacing its code with the prepared private file and deploying a new version to activate formatting. The centered Close button opens `thank-you.html`.

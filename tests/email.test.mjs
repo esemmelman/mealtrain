@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
+import { emailHtml } from '../supabase/functions/anne-katz-notify/email-template.ts';
 import { handle, emailText } from '../supabase/functions/anne-katz-notify/index.ts';
 import { gmailMessage } from '../supabase/functions/anne-katz-notify/gmail.ts';
 
@@ -36,7 +37,11 @@ test('Gmail MIME preserves UTF-8 text and rejects header injection', () => {
   const mime = Buffer.from(gmailMessage(row.email, 'esemmoc@gmail.com', text, id, 'participant'), 'base64url').toString('utf8');
   assert.ok(mime.includes('From: Meal Train <esemmoc@gmail.com>\r\n'));
   assert.ok(mime.includes('Subject: Anne\r\n'));
-  assert.equal(Buffer.from(mime.split('\r\n\r\n')[1], 'base64').toString('utf8'), text);
+  assert.equal(Buffer.from(mime.split('Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n')[1].split('\r\n--anne-confirmation')[0], 'base64').toString('utf8'), text);
+  assert.ok(mime.includes('Content-Type: text/html; charset=UTF-8'));
+  const html = Buffer.from(mime.split('Content-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n')[1].split('\r\n--anne-confirmation')[0], 'base64').toString('utf8');
+  assert.ok(html.includes('Comic Sans MS'));
+  assert.ok(html.includes('font-size:14pt'));
   assert.throws(() => gmailMessage('test@example.com\r\nBcc: other@example.com', 'esemmoc@gmail.com', text, id, 'participant'));
 });
 
@@ -144,4 +149,13 @@ test('DayFlow relay sends separate organizer and participant emails', async () =
   }
   assert.equal(sent[0].headers['Idempotency-Key'],'anne-katz-confirmation/'+id+'/organizer');
   assert.equal(sent[1].headers['Idempotency-Key'],'anne-katz-confirmation/'+id+'/participant');
+});
+
+test('HTML confirmation escapes text and preserves line breaks', () => {
+  const html = emailHtml('<script>alert("test")</script>&\nNext line');
+  assert.ok(!html.includes('<script>'));
+  assert.ok(html.includes('&lt;script&gt;'));
+  assert.ok(html.includes('&amp;<br>Next line'));
+  assert.ok(html.includes('Comic Sans MS'));
+  assert.ok(html.includes('font-size:14pt'));
 });
