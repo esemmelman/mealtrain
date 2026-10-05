@@ -8,6 +8,7 @@ const dates = Array.from(form.querySelectorAll('input[name="date"]'));
 const nameInput = document.getElementById('full-name');
 const phoneInput = document.getElementById('phone');
 const status = document.getElementById('status');
+const closeButton = document.getElementById('close-page');
 const loadStatus = document.getElementById('load-status');
 let savedSignups = [];
 let busy = false;
@@ -58,6 +59,7 @@ form.addEventListener('reset', event => {
   if (busy) { event.preventDefault(); return; }
   submissionId = crypto.randomUUID();
   status.textContent = '';
+  closeButton.hidden = true;
   setTimeout(() => { validate(); renderNames(); }, 0);
 });
 form.addEventListener('submit', async event => {
@@ -70,6 +72,7 @@ form.addEventListener('submit', async event => {
   const controls = Array.from(form.elements);
   controls.forEach(control => { control.disabled = true; });
   status.textContent = 'Submitting…';
+  closeButton.hidden = true;
   let success = false;
   let emailSent = false;
   try {
@@ -102,8 +105,16 @@ form.addEventListener('submit', async event => {
     status.textContent = emailSent
       ? 'Thank you! Your meal signup for Anne has been saved. Confirmation emails have been sent to you and the organizer.'
       : 'Your meal signup has been saved, but we could not confirm both emails were sent. Please let the organizer know; you do not need to sign up again.';
+    closeButton.hidden = false;
     await refreshNames();
   }
+});
+closeButton.addEventListener('click', () => {
+  window.close();
+  setTimeout(() => {
+    status.textContent += ' You can now close this browser tab manually.';
+    closeButton.hidden = true;
+  }, 300);
 });
 validate();
 refreshNames();
