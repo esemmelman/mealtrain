@@ -14,21 +14,30 @@ let busy = false;
 let refreshBusy = false;
 let submissionId = crypto.randomUUID();
 function validate() {
-  nameInput.setCustomValidity(nameInput.value.trim() ? '' : 'Please enter your name.');
-  dates[0].setCustomValidity(dates.some(input => input.checked) ? '' : 'Please select at least one date.');
+  const availableDates = dates.filter(input => !input.disabled);
+  nameInput.setCustomValidity(!nameInput.value.trim() ? 'Please enter your name.' : !busy && !availableDates.length ? 'All meal dates are already filled.' : '');
+  dates.forEach(input => input.setCustomValidity(''));
+  if (availableDates.length) availableDates[0].setCustomValidity(availableDates.some(input => input.checked) ? '' : 'Please select at least one date.');
   phoneInput.setCustomValidity(phoneInput.value.replace(/\D/g, '').length >= 10 ? '' : 'Please include your area code and phone number.');
 }
 function renderNames() {
   document.querySelectorAll('.name-line').forEach(line => {
     const names = savedSignups.filter(row => row.signup_dates.includes(line.dataset.date)).map(row => row.full_name);
+    const checkbox = dates.find(input => input.value === line.dataset.date);
+    const filled = names.length > 0;
+    checkbox.disabled = busy || filled;
+    if (filled) checkbox.checked = false;
+    checkbox.closest('.date-row').classList.toggle('filled', filled);
+    checkbox.title = filled ? 'This date already has a meal signup.' : '';
     line.replaceChildren(document.createTextNode(names.join(', ')));
-    if (dates.find(input => input.value === line.dataset.date).checked && nameInput.value.trim()) {
+    if (checkbox.checked && nameInput.value.trim()) {
       const pending = document.createElement('span');
       pending.className = 'pending-name';
       pending.textContent = (names.length ? ', ' : '') + nameInput.value.trim();
       line.append(pending);
     }
   });
+  validate();
 }
 async function refreshNames() {
   if (refreshBusy) return;
@@ -86,6 +95,7 @@ form.addEventListener('submit', async event => {
   } finally {
     busy = false;
     controls.forEach(control => { control.disabled = false; });
+    renderNames();
   }
   if (success) {
     form.reset();
