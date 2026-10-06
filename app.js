@@ -72,8 +72,11 @@ form.addEventListener('submit', async event => {
   busy = true;
   const controls = Array.from(form.elements);
   controls.forEach(control => { control.disabled = true; });
-  status.textContent = 'Submitting…';
-  closeButton.hidden = true;
+  status.textContent = 'Email sent to ' + payload.email + '.';
+  closeButton.hidden = false;
+  form.hidden = true;
+  document.querySelector('header').hidden = true;
+  document.querySelector('main').classList.add('confirmation');
   let success = false;
   let emailSent = false;
   try {
@@ -84,7 +87,6 @@ form.addEventListener('submit', async event => {
       if (error.code !== '23505') throw new Error('Submission failed.');
     }
     success = true;
-    status.textContent = 'Signup saved. Sending email…';
     // Email failure must not discard a signup that is already saved.
     try {
       const notification = await fetch(NOTIFY_URL, {
