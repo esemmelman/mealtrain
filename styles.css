@@ -37,3 +37,5 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 #close-page[hidden] { display: none; }
 .thank-you { text-align: center; }
 .thank-you h1 { margin: 0; font-size: clamp(48px, 8vw, 72px); }
+
+.confirmation #status { text-align: center; margin: 0; }

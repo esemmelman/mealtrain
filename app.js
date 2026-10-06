@@ -77,7 +77,7 @@ form.addEventListener('submit', async event => {
   let success = false;
   let emailSent = false;
   try {
-    const response = await fetch(API_URL, { method: 'POST', headers: { apikey: API_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(payload) });
+    const response = await fetch(API_URL, { method: 'POST', keepalive: true, headers: { apikey: API_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(payload) });
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       // Retrying a request after a lost response must not create a duplicate.
@@ -88,13 +88,17 @@ form.addEventListener('submit', async event => {
     // Email failure must not discard a signup that is already saved.
     try {
       const notification = await fetch(NOTIFY_URL, {
-        method: 'POST',
+        method: 'POST', keepalive: true,
         headers: { apikey: API_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({ signup_id: payload.id })
       });
       emailSent = notification.ok && (await notification.json()).emailed === true;
     } catch { /* Report the saved signup separately from email status below. */ }
   } catch {
+    form.hidden = false;
+    document.querySelector('header').hidden = false;
+    document.querySelector('main').classList.remove('confirmation');
+    closeButton.hidden = true;
     status.textContent = 'We could not save your signup. Your entries are still here; please try Submit again.';
   } finally {
     busy = false;
@@ -107,12 +111,6 @@ form.addEventListener('submit', async event => {
       ? 'Email sent to ' + payload.email + '.'
       : 'Your meal signup has been saved, but we could not confirm all emails were sent. Please let the organizer know; you do not need to sign up again.';
     closeButton.hidden = false;
-    if (emailSent) {
-      const main = document.querySelector('main');
-      main.append(status, closeButton);
-      form.hidden = true;
-      document.querySelector('header').hidden = true;
-    }
     await refreshNames();
   }
 });

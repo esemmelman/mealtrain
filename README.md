@@ -18,4 +18,4 @@ The simpler Gmail connection uses [Apps Script setup](APPS_SCRIPT_SETUP.md). Onc
 
 Confirmation HTML uses Comic Sans MS at 14 pt, matching the Google Doc, with an Arial/Helvetica fallback on devices without Comic Sans and a plain-text fallback. Apps Script requires replacing its code with the prepared private file and deploying a new version to activate formatting. The centered Exit button opens `thank-you.html`.
 
-The coordinator copy has its own saved receipt and stable Apps Script receipt, so retries skip copies already accepted. Successful submissions display only `Email sent to <email>.` plus the Exit button.
+The coordinator copy has its own saved receipt and stable Apps Script receipt, so retries skip copies already accepted. Immediately after a valid submission, the form is replaced in place by `Email sent to <email>.` plus the centered Exit button beneath it. Saving and sending continue in the background; failures replace the message with an error.
