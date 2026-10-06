@@ -12,6 +12,8 @@ const closeButton = document.getElementById('close-page');
 const loadStatus = document.getElementById('load-status');
 let savedSignups = [];
 let busy = false;
+let submitted = false;
+const submitButton = form.querySelector('button[type="submit"]');
 let refreshBusy = false;
 let submissionId = crypto.randomUUID();
 function validate() {
@@ -58,6 +60,8 @@ form.addEventListener('input', () => { validate(); renderNames(); });
 form.addEventListener('change', () => { validate(); renderNames(); });
 form.addEventListener('reset', event => {
   if (busy) { event.preventDefault(); return; }
+  submitted = false;
+  submitButton.disabled = false;
   submissionId = crypto.randomUUID();
   status.textContent = '';
   closeButton.hidden = true;
@@ -66,7 +70,7 @@ form.addEventListener('reset', event => {
 form.addEventListener('submit', async event => {
   event.preventDefault();
   validate();
-  if (busy || !form.reportValidity()) return;
+  if (busy || submitted || !form.reportValidity()) return;
   const data = new FormData(form);
   const payload = { id: submissionId, full_name: data.get('full_name').trim(), meal_type: data.get('meal_type'), signup_dates: data.getAll('date'), email: data.get('email').trim(), phone: data.get('phone').trim(), comment: data.get('comment').trim() };
   busy = true;
@@ -105,6 +109,8 @@ form.addEventListener('submit', async event => {
   }
   if (success) {
     form.reset();
+    submitted = true;
+    submitButton.disabled = true;
     status.textContent = emailSent
       ? 'Email sent to ' + payload.email + '.'
       : 'Your meal signup has been saved, but we could not confirm all emails were sent. Please let the organizer know; you do not need to sign up again.';
