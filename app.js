@@ -78,6 +78,7 @@ form.addEventListener('submit', async event => {
   controls.forEach(control => { control.disabled = true; });
   status.textContent = 'Email sent to ' + payload.email + '.';
   closeButton.hidden = false;
+  closeButton.disabled = false;
   document.querySelector('main').classList.add('confirmation');
   let success = false;
   let emailSent = false;
