@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
+import { sendAppsScript } from '../supabase/functions/anne-katz-notify/apps-script.ts';
 import { handle } from '../supabase/functions/anne-katz-notify/index.ts';
 
 const id = '66961555-e184-4f1f-b0f7-27c0d77593b2';
@@ -67,7 +68,7 @@ test('script rejects address injection and invalid roles', () => {
   assert.equal(script.invoke({ ...notification, role: 'attacker' }).error, 'invalid_notification');
   assert.equal(script.sent.length, 0);
 });
-test('backend routes saved signup to configured script and records both receipts', async () => {
+test('backend routes saved signup to configured script and records all three receipts', async () => {
   const script = scriptMock();
   const settings = { script_url: 'https://script.google.com/macros/s/test-deployment/exec', token };
   const saved = { id, email: notification.email, signup_dates: ['2026-10-10'] };
@@ -81,8 +82,23 @@ test('backend routes saved signup to configured script and records both receipts
     return new Response(null, { status: 204 });
   });
   assert.equal(response.status, 200);
-  assert.equal(script.sent.length, 2);
+  assert.equal(script.sent.length, 3);
+  assert.equal(script.sent[2].to, 'kerigee1@aol.com');
+  assert.ok(updates[2].gmail_coordinator_id);
   assert.equal(updates[0].gmail_organizer_id, 'anne-' + id + '-organizer');
   assert.equal(updates[1].gmail_participant_id, 'anne-' + id + '-participant');
-  assert.ok(updates[2].email_notified_at);
+  assert.ok(updates[3].email_notified_at);
+});
+
+test('coordinator copy works with existing script and does not duplicate on retry', async () => {
+  const script = scriptMock();
+  const settings = { script_url: 'https://script.google.com/macros/s/test-deployment/exec', token };
+  const saved = { id, email: notification.email };
+  const fetcher = async (_url, options) => Response.json(script.invoke(JSON.parse(options.body)));
+  const participantReceipt = await sendAppsScript(settings, saved, 'participant', notification.text, fetcher);
+  const copyReceipt = await sendAppsScript(settings, saved, 'coordinator', notification.text, fetcher);
+  assert.notEqual(participantReceipt, copyReceipt);
+  assert.equal(await sendAppsScript(settings, saved, 'coordinator', notification.text, fetcher), copyReceipt);
+  assert.equal(script.sent.length, 2);
+  assert.equal(script.sent[1].to, 'kerigee1@aol.com');
 });

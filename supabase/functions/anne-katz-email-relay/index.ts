@@ -13,10 +13,10 @@ Deno.serve(async request => {
   if (!key || !configuredFrom) return respond({ error: 'DayFlow email sending is not configured.' }, 503);
   const senderAddress = (configuredFrom.match(/<([^<>]+)>/)?.[1] || configuredFrom).trim();
   const from = 'Meal Train <' + senderAddress + '>';
-  // Send two separate messages; recipient lists are never shared between emails.
+  // Send separate messages; recipient lists are never shared between emails.
   try {
     const ids = [];
-    for (const [role, recipient] of [['organizer', 'esemmoc@gmail.com'], ['participant', row.reply_to]]) {
+    for (const [role, recipient] of [['organizer', 'esemmoc@gmail.com'], ['participant', row.reply_to], ['coordinator', 'kerigee1@aol.com']]) {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', 'Idempotency-Key': 'anne-katz-confirmation/' + row.id + '/' + role },

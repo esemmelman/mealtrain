@@ -10,6 +10,7 @@ create table public.anne_katz_mealtrain_signups (
  email_notified_at timestamptz,
  gmail_organizer_id text,
  gmail_participant_id text,
+ gmail_coordinator_id text,
  email_send_started_at timestamptz
 );
 alter table public.anne_katz_mealtrain_signups enable row level security;

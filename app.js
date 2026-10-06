@@ -104,9 +104,15 @@ form.addEventListener('submit', async event => {
   if (success) {
     form.reset();
     status.textContent = emailSent
-      ? 'Thank you! Your meal signup for Anne has been saved. Confirmation emails have been sent to you and the organizer.'
-      : 'Your meal signup has been saved, but we could not confirm both emails were sent. Please let the organizer know; you do not need to sign up again.';
+      ? 'Email sent to ' + payload.email + '.'
+      : 'Your meal signup has been saved, but we could not confirm all emails were sent. Please let the organizer know; you do not need to sign up again.';
     closeButton.hidden = false;
+    if (emailSent) {
+      const main = document.querySelector('main');
+      main.append(status, closeButton);
+      form.hidden = true;
+      document.querySelector('header').hidden = true;
+    }
     await refreshNames();
   }
 });

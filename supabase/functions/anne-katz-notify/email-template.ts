@@ -26,10 +26,10 @@ Suggested Ideas:
 * Soups
 * Sandwiches (Subway)
 
-
 Dislikes:
 * Spicy anything
 * Heavy sauces
+
 If you have any general questions for the CCC, please email:
 sharethecaring@templebethdavid.org`;
 

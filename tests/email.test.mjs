@@ -23,7 +23,7 @@ function gmailMock(savedRow = row, failedRole = '', claimed = true) {
     if (url.includes('&or=')) return Response.json(claimed ? [savedRow] : []);
     if (url.includes('gmail.googleapis.com')) {
       const mime = Buffer.from(JSON.parse(options.body).raw, 'base64url').toString('utf8');
-      const role = /^To: esemmoc@gmail.com\r?$/m.test(mime) ? 'organizer' : 'participant';
+      const role = /^To: esemmoc@gmail.com\r?$/m.test(mime) ? 'organizer' : /^To: kerigee1@aol.com\r?$/m.test(mime) ? 'coordinator' : 'participant';
       sent.push({ mime, role });
       return role === failedRole ? Response.json({ error: { status: 'PERMISSION_DENIED' } }, { status: 403 }) : Response.json({ id: role + '-gmail-id' });
     }
@@ -50,24 +50,25 @@ test('Gmail MIME preserves UTF-8 text and rejects header injection', () => {
 test('Gmail sends separate confirmations and records each acceptance', async () => {
   const mock = gmailMock();
   assert.equal((await handle(request(), gmailEnv, mock.fetcher)).status, 200);
-  assert.deepEqual(mock.sent.map(send => send.role), ['organizer', 'participant']);
+  assert.deepEqual(mock.sent.map(send => send.role), ['organizer', 'participant', 'coordinator']);
   assert.ok(mock.sent[0].mime.includes('Reply-To: ' + row.email + '\r\n'));
   assert.ok(mock.sent[1].mime.includes('Reply-To: esemmoc@gmail.com\r\n'));
   assert.deepEqual(mock.updates.slice(0, 2), [{ gmail_organizer_id: 'organizer-gmail-id' }, { gmail_participant_id: 'participant-gmail-id' }]);
-  assert.ok(mock.updates[2].email_notified_at);
+  assert.deepEqual(mock.updates[2], { gmail_coordinator_id: 'coordinator-gmail-id' });
+  assert.ok(mock.updates[3].email_notified_at);
   assert.deepEqual(mock.updates.at(-1), { email_send_started_at: null });
 });
 
 test('Gmail retry skips organizer already accepted and sends participant', async () => {
   const mock = gmailMock({ ...row, gmail_organizer_id: 'existing-id' });
   assert.equal((await handle(request(), gmailEnv, mock.fetcher)).status, 200);
-  assert.deepEqual(mock.sent.map(send => send.role), ['participant']);
+  assert.deepEqual(mock.sent.map(send => send.role), ['participant', 'coordinator']);
 });
 
 test('Gmail still attempts participant after organizer failure', async () => {
   const mock = gmailMock(row, 'organizer');
   assert.equal((await handle(request(), gmailEnv, mock.fetcher)).status, 502);
-  assert.deepEqual(mock.sent.map(send => send.role), ['organizer', 'participant']);
+  assert.deepEqual(mock.sent.map(send => send.role), ['organizer', 'participant', 'coordinator']);
   assert.ok(mock.updates.some(update => update.gmail_participant_id));
   assert.ok(!mock.updates.some(update => update.email_notified_at));
   assert.deepEqual(mock.updates.at(-1), { email_send_started_at: null });
@@ -100,6 +101,8 @@ test('Gmail authorization failure does not send or mark the signup', async () =>
 test('uses document confirmation wording and only selected dates', () => {
   const text = emailText(row);
   assert.ok(text.includes('Wed. Oct. 21st.\n\nPlease deliver'));
+  assert.ok(text.includes('* Sandwiches (Subway)\n\nDislikes:'));
+  assert.ok(text.includes('* Heavy sauces\n\nIf you'));
   for (const answer of ['Thank YOU for being part','Sat. Oct. 10th, Wed. Oct. 21st','approx. 5 p.m.','CONTACT INFORMATION','TYPES OF MEALS','sharethecaring@templebethdavid.org']) assert.ok(text.includes(answer));
   for (const excluded of ['<signup-dates>', 'Tues. Oct. 13th', 'Sat. Oct. 17th', 'My Name:', 'Test comment']) assert.ok(!text.includes(excluded));
 });
@@ -109,7 +112,7 @@ test('reads saved answers, relays them, and records success', async () => {
     if (url.includes('anne_katz_email_settings')) return Response.json([]);
     calls.push({url,options});
     if (url.includes('&select=*')) return Response.json([row]);
-    if (url.includes('email-relay')) return Response.json({ids:['organizer-email-id','participant-email-id']});
+    if (url.includes('email-relay')) return Response.json({ids:['organizer-email-id','participant-email-id','coordinator-email-id']});
     return new Response(null,{status:204});
   });
   assert.equal(response.status,200);
@@ -141,10 +144,11 @@ test('DayFlow relay sends separate organizer and participant emails', async () =
   vm.runInContext(await readFile(new URL('../supabase/functions/anne-katz-email-relay/index.ts',import.meta.url),'utf8'),context);
   const response = await handler(new Request('https://example.com',{method:'POST',headers:{apikey:'sb_publishable_j7q6Ox0GVsUv68D3oQiOBA_2Avx50il'},body:JSON.stringify({id,text:emailText(row),reply_to:row.email,to:'someone-else@example.com',subject:'Ignore'})}));
   assert.equal(response.status,200);
-  assert.equal(sent.length,2);
+  assert.equal(sent.length,3);
   const emails = sent.map(request => JSON.parse(request.body));
   assert.deepEqual(emails[0].to,['esemmoc@gmail.com']);
   assert.deepEqual(emails[1].to,[row.email]);
+  assert.deepEqual(emails[2].to,['kerigee1@aol.com']);
   for (const email of emails) {
     assert.equal(email.subject,'Anne');
     assert.equal(email.from,'Meal Train <sender@example.com>');
@@ -163,4 +167,17 @@ test('HTML confirmation escapes text and preserves line breaks', () => {
   assert.ok(html.includes('font-size:14pt'));
   assert.ok(html.includes('Arial,Helvetica,sans-serif'));
   assert.ok(!html.includes(',cursive'));
+});
+
+test('retry skips coordinator already accepted', async () => {
+  const mock = gmailMock({ ...row, gmail_coordinator_id: 'existing-copy' });
+  assert.equal((await handle(request(), gmailEnv, mock.fetcher)).status, 200);
+  assert.deepEqual(mock.sent.map(send => send.role), ['organizer', 'participant']);
+});
+test('coordinator failure prevents marking completion and retains other receipts', async () => {
+  const mock = gmailMock(row, 'coordinator');
+  assert.equal((await handle(request(), gmailEnv, mock.fetcher)).status, 502);
+  assert.ok(mock.updates.some(update => update.gmail_organizer_id));
+  assert.ok(mock.updates.some(update => update.gmail_participant_id));
+  assert.ok(!mock.updates.some(update => update.email_notified_at));
 });

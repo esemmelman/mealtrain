@@ -70,7 +70,7 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
       const current = claimedRows[0];
       const failures = [];
       try {
-        for (const [role, recipient] of [['organizer', 'esemmoc@gmail.com'], ['participant', current.email]]) {
+        for (const [role, recipient] of [['organizer', 'esemmoc@gmail.com'], ['participant', current.email], ['coordinator', 'kerigee1@aol.com']]) {
           const column = 'gmail_' + role + '_id';
           if (current[column] || current.email_notified_at) continue;
           try {
@@ -107,7 +107,7 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
     });
     if (!response.ok) return reply({ error: 'The email provider did not accept the notification.' }, 502);
     const sent = await response.json();
-    if (!Array.isArray(sent.ids) || sent.ids.length !== 2 || sent.ids.some(id => !id)) return reply({ error: 'The email provider did not confirm both emails.' }, 502);
+    if (!Array.isArray(sent.ids) || sent.ids.length !== 3 || sent.ids.some(id => !id)) return reply({ error: 'The email provider did not confirm all emails.' }, 502);
     const marked = await fetcher(recordUrl, {
       method: 'PATCH', headers: { ...databaseHeaders, Prefer: 'return=minimal' },
       body: JSON.stringify({ email_notified_at: new Date().toISOString() })
