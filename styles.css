@@ -23,8 +23,8 @@ b { color: #a34137; font-weight: normal; }
 .pending-name { color: #60735c; font-style: italic; }
 .comment-label { display: block; margin-bottom: 8px; }
 textarea { display: block; width: 100%; resize: vertical; min-height: 130px; border: 1px solid #9ba693; border-radius: 6px; padding: 4px 6px; font: inherit; color: inherit; background: #fffdf5; }
-.actions { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; column-gap: 12px; margin-top: 24px; }
-.actions #status { grid-column: 3; text-align: center; margin: 3em 0 0; overflow-wrap: anywhere; }
+.actions { display: grid; grid-template-columns: auto auto max-content; align-items: center; column-gap: 16px; margin-top: 24px; }
+.actions #status { grid-column: 3; text-align: center; margin: 1.5em 0 0; overflow-wrap: anywhere; }
 .actions #status:empty { display: none; }
 button { background: #526c46; color: white; border: 1px solid #526c46; border-radius: 6px; font: inherit; padding: 12px 26px; cursor: pointer; }
 button.secondary { background: white; color: #526c46; }
@@ -44,4 +44,4 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 
 button[type="submit"]:disabled { background: #aaa; border-color: #aaa; color: #fff; opacity: 1; cursor: not-allowed; }
 
-@media (max-width: 540px) { .actions { column-gap: 8px; } .actions button { padding: 12px 10px; } }
+@media (max-width: 540px) { .actions { grid-template-columns: auto auto minmax(0, 1fr); column-gap: 8px; } .actions button { padding: 12px 10px; } }
