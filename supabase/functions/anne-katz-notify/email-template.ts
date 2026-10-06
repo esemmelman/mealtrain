@@ -1,7 +1,6 @@
 // Source: Google Doc 1559OWjPDo2YZEN0bGgYMqo-lKKctIRJgYXZ5H1GWxfc, October 5, 2026.
 export const EMAIL_TEMPLATE = `Thank YOU for being part of the meal train for Anne Katz.
 
-
 You are confirmed for <signup-dates>.
 
 Please deliver/have the meal delivered to Anne's home at approx. 5 p.m. the day of unless you pre-arrange with her otherwise. Please also call the day of to let her know you/the delivery is on its way. She'll let you know if she is up for a visit or to just leave the food by the front door on her patio. Please provide the meal in disposable containers. Thank you.
