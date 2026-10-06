@@ -42,6 +42,8 @@ test('Gmail MIME preserves UTF-8 text and rejects header injection', () => {
   const html = Buffer.from(mime.split('Content-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n')[1].split('\r\n--anne-confirmation')[0], 'base64').toString('utf8');
   assert.ok(html.includes('Comic Sans MS'));
   assert.ok(html.includes('font-size:14pt'));
+  assert.ok(html.includes('Arial,Helvetica,sans-serif'));
+  assert.ok(!html.includes(',cursive'));
   assert.throws(() => gmailMessage('test@example.com\r\nBcc: other@example.com', 'esemmoc@gmail.com', text, id, 'participant'));
 });
 
@@ -97,6 +99,7 @@ test('Gmail authorization failure does not send or mark the signup', async () =>
 
 test('uses document confirmation wording and only selected dates', () => {
   const text = emailText(row);
+  assert.ok(text.includes('Wed. Oct. 21st.\n\nPlease deliver'));
   for (const answer of ['Thank YOU for being part','Sat. Oct. 10th, Wed. Oct. 21st','approx. 5 p.m.','CONTACT INFORMATION','TYPES OF MEALS','sharethecaring@templebethdavid.org']) assert.ok(text.includes(answer));
   for (const excluded of ['<signup-dates>', 'Tues. Oct. 13th', 'Sat. Oct. 17th', 'My Name:', 'Test comment']) assert.ok(!text.includes(excluded));
 });
@@ -158,4 +161,6 @@ test('HTML confirmation escapes text and preserves line breaks', () => {
   assert.ok(html.includes('&amp;<br>Next line'));
   assert.ok(html.includes('Comic Sans MS'));
   assert.ok(html.includes('font-size:14pt'));
+  assert.ok(html.includes('Arial,Helvetica,sans-serif'));
+  assert.ok(!html.includes(',cursive'));
 });

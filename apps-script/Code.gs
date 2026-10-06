@@ -50,5 +50,5 @@ function doPost(event) {
 
 function emailHtml(text) {
   const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  return `<div style="font-family:'Comic Sans MS','Comic Sans',cursive;font-size:14pt;color:#222;line-height:1.4">${escaped.replace(/\r?\n/g, '<br>')}</div>`;
+  return `<div style="font-family:'Comic Sans MS','Comic Sans',Arial,Helvetica,sans-serif;font-size:14pt;color:#222;line-height:1.4">${escaped.replace(/\r?\n/g, '<br>')}</div>`;
 }

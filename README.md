@@ -16,4 +16,4 @@ Gmail sending is available in `anne-katz-notify` after the one-time authorizatio
 
 The simpler Gmail connection uses [Apps Script setup](APPS_SCRIPT_SETUP.md). Once its deployment URL is configured in the server-only `anne_katz_email_settings` table, it takes precedence over the other providers. Its token is never included in the public form or GitHub.
 
-Confirmation HTML uses Comic Sans MS at 14 pt, matching the Google Doc, with a plain-text fallback. Apps Script requires replacing its code with the prepared private file and deploying a new version to activate formatting. The centered Close button opens `thank-you.html`.
+Confirmation HTML uses Comic Sans MS at 14 pt, matching the Google Doc, with an Arial/Helvetica fallback on devices without Comic Sans and a plain-text fallback. Apps Script requires replacing its code with the prepared private file and deploying a new version to activate formatting. The centered Exit button opens `thank-you.html`.
