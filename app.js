@@ -74,8 +74,6 @@ form.addEventListener('submit', async event => {
   controls.forEach(control => { control.disabled = true; });
   status.textContent = 'Email sent to ' + payload.email + '.';
   closeButton.hidden = false;
-  form.hidden = true;
-  document.querySelector('header').hidden = true;
   document.querySelector('main').classList.add('confirmation');
   let success = false;
   let emailSent = false;
@@ -97,8 +95,6 @@ form.addEventListener('submit', async event => {
       emailSent = notification.ok && (await notification.json()).emailed === true;
     } catch { /* Report the saved signup separately from email status below. */ }
   } catch {
-    form.hidden = false;
-    document.querySelector('header').hidden = false;
     document.querySelector('main').classList.remove('confirmation');
     closeButton.hidden = true;
     status.textContent = 'We could not save your signup. Your entries are still here; please try Submit again.';
