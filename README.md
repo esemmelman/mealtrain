@@ -10,7 +10,7 @@ Signup dates are October 10, 13, 17, and 21, 2026. October 7 is reserved for CCC
 
 After saving a signup, the browser calls the bnaimitzvah project's anne-katz-notify Edge Function. It reads the saved answers and sends three separate emails through the bnaimitzvah project's dedicated anne-katz-email-relay function, reusing DayFlow's existing RESEND_API_KEY and REMINDER_EMAIL_FROM secrets. One goes to esemmoc@gmail.com one to the signup's email address, and one to kerigee1@aol.com. All use sender name Meal Train and subject Anne. The body uses the supplied Google Doc's confirmation wording, with <signup-dates> replaced by the selected date labels. The template is a snapshot in email-template.ts, not a live Google Doc fetch. No email credentials are stored in GitHub or the browser. Email failure leaves the signup saved and displays a notification warning. email_notified_at is set only after all emails are accepted; separate Resend idempotency keys prevent duplicate notifications on retries. Email provider acceptance does not guarantee inbox delivery.
 
-Deployment projects: anne-katz-notify belongs to fgomaujsdblpzxhnnqrg (bnaimitzvah); anne-katz-email-relay belongs to ynfjfanvdvpyycoeweca (DayFlow). The function source directories are checked in here for both deployments.
+Deployment project: both anne-katz-notify and anne-katz-email-relay belong to fgomaujsdblpzxhnnqrg (bnaimitzvah), following the October 19, 2026 consolidation. The function source directories are checked in here for both deployments.
 
 Gmail sending is available in `anne-katz-notify` after the one-time authorization in [GMAIL_SETUP.md](GMAIL_SETUP.md). Set `ANNE_EMAIL_PROVIDER=gmail` only after saving the Gmail credentials. Until then, the existing Resend relay remains selected.
 
