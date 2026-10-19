@@ -1,4 +1,4 @@
-const API_KEY = 'sb_publishable_j7q6Ox0GVsUv68D3oQiOBA_2Avx50il';
+const API_KEY = 'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i';
 Deno.serve(async request => {
   const respond = (body, status = 200) => Response.json(body, { status });
   if (request.method !== 'POST') return respond({ error: 'Method not allowed.' }, 405);

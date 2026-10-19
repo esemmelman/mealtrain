@@ -142,7 +142,7 @@ test('DayFlow relay sends separate organizer and participant emails', async () =
   const sent = [];
   const context = vm.createContext({Response,console,Deno:{env:{get:name=>({RESEND_API_KEY:'fake-resend-key',REMINDER_EMAIL_FROM:'DayFlow <sender@example.com>'})[name]},serve:fn=>{handler=fn;}},fetch:async (_url,options)=>{sent.push(options);return Response.json({id:'mail-id-'+sent.length});}});
   vm.runInContext(await readFile(new URL('../supabase/functions/anne-katz-email-relay/index.ts',import.meta.url),'utf8'),context);
-  const response = await handler(new Request('https://example.com',{method:'POST',headers:{apikey:'sb_publishable_j7q6Ox0GVsUv68D3oQiOBA_2Avx50il'},body:JSON.stringify({id,text:emailText(row),reply_to:row.email,to:'someone-else@example.com',subject:'Ignore'})}));
+  const response = await handler(new Request('https://example.com',{method:'POST',headers:{apikey:'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i'},body:JSON.stringify({id,text:emailText(row),reply_to:row.email,to:'someone-else@example.com',subject:'Ignore'})}));
   assert.equal(response.status,200);
   assert.equal(sent.length,3);
   const emails = sent.map(request => JSON.parse(request.body));

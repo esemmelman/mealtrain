@@ -100,9 +100,9 @@ export async function handle(request, env = name => Deno.env.get(name), fetcher 
       }
     }
     // Read saved answers on the server; the browser cannot change the recipient or subject.
-    const response = await fetcher('https://ynfjfanvdvpyycoeweca.supabase.co/functions/v1/anne-katz-email-relay', {
+    const response = await fetcher('https://fgomaujsdblpzxhnnqrg.supabase.co/functions/v1/anne-katz-email-relay', {
       method: 'POST',
-      headers: { apikey: 'sb_publishable_j7q6Ox0GVsUv68D3oQiOBA_2Avx50il', 'Content-Type': 'application/json' },
+      headers: { apikey: 'sb_publishable_JOUqLZDnfGu_yCa6k6FVDQ_AYwpr72i', 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: row.id, text: emailText(row), reply_to: row.email })
     });
     if (!response.ok) return reply({ error: 'The email provider did not accept the notification.' }, 502);
